@@ -16,7 +16,7 @@ import random
 app = Flask(__name__)
 env_vars = dict(os.environ)
 conn = psycopg2.connect(host='postgres', port=5432, user='postgres')
-
+hosts = [('queue', 61613)]
 
 # TO DO: send message to warehouse and move this impl to warehouse
 # TO DO: split in DROP and CREATE action
@@ -59,7 +59,7 @@ def new_product():
         if not product_name or not product_price:
             return render_template('product_form.html', error=True, message='Product name or price is missing')
         
-        hosts = [('queue', 61613)]
+        
         queue = stomp.Connection(host_and_ports=hosts)
         queue.start()
         queue.connect('admin', 'admin', wait=True, headers = {'client-id': 'warehouse-admin'} )
@@ -72,11 +72,10 @@ def new_product():
 
 @app.route('/products/list', methods=['GET'])
 def list_product():
-    hosts = [('queue', 61613)]
     queue = stomp.Connection(host_and_ports=hosts)
     queue.start()
     queue.connect('products', 'products', wait=True, headers = {'client-id': 'warehouse-product-list'} )
-    message = json.dumps({'type': 'products', 'action': 'list', 'page': 1, 'pageSize': 5})
+    message = json.dumps({'type': 'products', 'action': 'list', 'page': 1, 'pageSize': 5, 'sender': 'admin-interface'})
     queue.send(body=message, destination='products')
     queue.disconnect()
     return render_template("request_list.html", success=True, message="requests product list")
@@ -84,7 +83,6 @@ def list_product():
 
 if __name__ == '__main__':
     print("hello!")
-    time.sleep(2)
     create_demo_table(conn)
     seed_db(conn)
 

@@ -40,12 +40,11 @@ def start_admin_listener(db, hosts):
 
 if __name__ == '__main__':
     hosts = [('queue', 61613)]
-    time.sleep(2)
     conn = psycopg2.connect(host='postgres', port=5432, user='postgres')
     # start listeners for input channels
     start_products_listener(conn, hosts)
     start_admin_listener(conn, hosts)
 
     while True:
-        # keep app runnign to prevent docker from terminating
+        # keep app running to prevent docker from terminating
         time.sleep(0.01)

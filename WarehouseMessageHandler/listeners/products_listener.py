@@ -18,7 +18,7 @@ class ProductsListener(stomp.ConnectionListener):
         print('received an error "%s"' % message)
 
     def on_message(self, headers, message):
-        print(message)
+        print(message, dir(message))
         parsed_message = json.loads(message)
         if parsed_message['type'] == 'products':
             handler = self.handlers_mapping[parsed_message['action']]
@@ -32,6 +32,7 @@ class ProductsListener(stomp.ConnectionListener):
         cursor = self.db.cursor()
         limit = message['pageSize']
         offset = max(0, message['page'] - 1) * limit
+        destination = message['sender']
         cursor.execute("SELECT * FROM demo LIMIT %d OFFSET %d" % (limit, offset))
         result = cursor.fetchall()
         cursor.execute("SELECT COUNT(*) FROM demo")
@@ -41,7 +42,7 @@ class ProductsListener(stomp.ConnectionListener):
         has_previous = offset > 0
 
         message = {
-            'destination': 'store-1',
+            'destination': destination,
             'type': 'translate',
             'pageInfo': {
                 'page': message['page'],
