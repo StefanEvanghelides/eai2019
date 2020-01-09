@@ -12,6 +12,7 @@ from flask import (
     redirect,
     send_from_directory
 )
+import random
 app = Flask(__name__)
 env_vars = dict(os.environ)
 conn = psycopg2.connect(host='postgres', port=5432, user='postgres')
@@ -29,7 +30,8 @@ conn = psycopg2.connect(host='postgres', port=5432, user='postgres')
 def create_demo_table(conn):
     print("creating demo table")
     cursor = conn.cursor()
-    cursor.execute('CREATE TABLE IF NOT EXISTS demo (id SERIAL, name VARCHAR(64))')
+    cursor.execute('DROP TABLE IF EXISTS demo')
+    cursor.execute('CREATE TABLE IF NOT EXISTS demo (id SERIAL, name VARCHAR(64), price INTEGER)')
     conn.commit()
 
 def seed_db(conn):
@@ -43,8 +45,9 @@ def seed_db(conn):
     to_insert = name_seq - existing
     print("seeding database")
     for name in to_insert:
-        print("\t\tinserting entry with name <%s>" % name)
-        cursor.execute("INSERT INTO demo (name) VALUES ('%s')" % name)
+        price = random.randint(1000, 10000)
+        print("\t\tinserting entry with name <%s> and price <%d>" % (name, price))
+        cursor.execute("INSERT INTO demo (name, price) VALUES ('%s', %d)" % (name, price))
 
     conn.commit()
 
@@ -58,18 +61,31 @@ def new_product():
     else:
         cursor = conn.cursor()
         product_name = request.form.get('product-name')
-        if not product_name:
-            return render_template('product_form.html', error=True, message='Product name is missing')
+        product_price = request.form.get('product-price')
+        if not product_name or not product_price:
+            return render_template('product_form.html', error=True, message='Product name or price is missing')
         
         hosts = [('queue', 61613)]
         queue = stomp.Connection(host_and_ports=hosts)
         queue.start()
         queue.connect('admin', 'admin', wait=True, headers = {'client-id': 'warehouse-admin'} )
-        message = json.dumps({'type': 'products', 'action': 'create', 'content': {'product-name': product_name, 'price': 123}})
+        message = json.dumps({'type': 'products', 'action': 'create', 'content': {'product-name': product_name, 'price': product_price}})
         queue.send(body=message, destination='admin')
         queue.disconnect()
         app.logger.info('sent message')
         return render_template('product_form.html', succes=True, product_name=product_name)
+
+
+@app.route('/products/list', methods=['GET'])
+def list_product():
+    hosts = [('queue', 61613)]
+    queue = stomp.Connection(host_and_ports=hosts)
+    queue.start()
+    queue.connect('products', 'products', wait=True, headers = {'client-id': 'warehouse-product-list'} )
+    message = json.dumps({'type': 'products', 'action': 'list', 'page': 1, 'pageSize': 5})
+    queue.send(body=message, destination='products')
+    queue.disconnect()
+    return render_template("request_list.html", success=True, message="requests product list")
 
 
 if __name__ == '__main__':

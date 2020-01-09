@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>k8s admin dashboard</title>
+		<title>Product create form</title>
 	</head>
 	<body>
 			<h1>Create a product</h1>
@@ -14,6 +14,7 @@
 			{% endif %}
 		<form method='post' target='/products/new'>
 			<input type='text' placeholder='product name' name='product-name'/>
+			<input type='number' placeholder='123' name='product-price'/>
 			<br/>
 			<input type='submit' value='Create Product'/>
 		</form>
