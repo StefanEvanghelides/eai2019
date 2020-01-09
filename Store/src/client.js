@@ -1,6 +1,8 @@
-Object.assign(global, { WebSocket: require('ws') });
+if (typeof WebSocket !== 'function') {
+    Object.assign(global, { WebSocket: require('ws') });
+}
 const { Stomp } = require('@stomp/stompjs');
-if (typeof TextEncoder != 'function') {
+if (typeof TextEncoder !== 'function') {
     const {TextEncoder, TextDecoder} = require('text-encoding');
     Object.assign(global, { TextEncoder: TextEncoder });
     Object.assign(global, { TextDecoder: TextDecoder });
