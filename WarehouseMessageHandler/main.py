@@ -20,7 +20,6 @@ def start_products_listener(db, hosts):
 
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener('', ProductsListener(db, hosts))
-    print(queue, queue.__class__, dir(queue))
     queue.start()
     queue.connect('admin', 'admin', wait=True, headers = {'client-id': 'warehouse-listener'} )
     queue.subscribe(destination='products', id=1, ack='auto',headers = {'subscription-type': 'MULTICAST','durable-subscription-name':'someValue'})
