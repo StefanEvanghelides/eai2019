@@ -50,6 +50,7 @@ def seed_db(conn):
 
 @app.route('/products/new', methods=['POST', 'GET'])
 def new_product():
+
     app.logger.info('Create new product')
     if request.method == 'GET':
         entries = []
@@ -59,14 +60,21 @@ def new_product():
         product_name = request.form.get('product-name')
         if not product_name:
             return render_template('product_form.html', error=True, message='Product name is missing')
-        cursor.execute("INSERT INTO demo (name) VALUES ('%s')" % product_name)
-        conn.commit()
+        
+        hosts = [('queue', 61613)]
+        queue = stomp.Connection(host_and_ports=hosts)
+        queue.start()
+        queue.connect('admin', 'admin', wait=True, headers = {'client-id': 'warehouse-admin'} )
+        message = json.dumps({'type': 'products', 'action': 'create', 'content': {'product-name': product_name, 'price': 123}})
+        queue.send(body=message, destination='admin')
+        queue.disconnect()
         app.logger.info('sent message')
         return render_template('product_form.html', succes=True, product_name=product_name)
 
 
 if __name__ == '__main__':
     print("hello!")
+    time.sleep(2)
     create_demo_table(conn)
     seed_db(conn)
 
