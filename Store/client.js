@@ -1,31 +1,31 @@
 Object.assign(global, { WebSocket: require('ws') });
-var Stomp = require('@stomp/stompjs');
+const { Stomp } = require('@stomp/stompjs');
+if (typeof TextEncoder != 'function') {
+    const {TextEncoder, TextDecoder} = require('text-encoding');
+    Object.assign(global, { TextEncoder: TextEncoder });
+    Object.assign(global, { TextDecoder: TextDecoder });
+}
 
 var url = "ws://localhost:61614";
-
-var obj = {
-    brokerURL: "ws://localhost:61614",
-    connectHeaders: {
-        login: "admin",
-        passcode: "admin"
-    }
-};
-var client = Stomp.Client(obj);
+var client = Stomp.client(url);
 
 // Connect
 var login = "admin";
 var passcode = "admin";
+var destination = "reply";
+//var header = {id: "store"};
 var successCallback = function(message) {
     if (message.body) {
-        alert("Received message: " + message.body);
+        console.log("Received message: " + message.body);
     } else {
-        alert("Received empty message");
+        console.log("Received empty message");
     }
-}
-client.connect(login, passcode, successCallback);
+};
+var subscriptionCallback = function(frame) {
+    console.log(client);
+    client.subscribe(destination, successCallback)
+    console.log("Successfully subscribed");
+};
 
-// Send a message
-destionation = "";
-header = {};
-body = "";
-client.send(destination, header, body);
+client.connect(login, passcode, subscriptionCallback);
+

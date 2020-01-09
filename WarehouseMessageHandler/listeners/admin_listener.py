@@ -21,9 +21,7 @@ class AdminListener(stomp.ConnectionListener):
 
             print('received a message "%s"' % message)
         except Exception as e:
-            print(
-                "An error occured while receiving a message in the 'Admin' listener"
-            )
+            print("An error occured while receiving a message in the 'Admin' listener")
             traceback.print_exc()
 
     def create(self, message):
