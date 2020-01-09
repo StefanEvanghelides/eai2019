@@ -12,7 +12,7 @@ var client = Stomp.client(url);
 // Connect
 var login = "admin";
 var passcode = "admin";
-var destination = "reply";
+var replyDestination = "reply";
 //var header = {id: "store"};
 var successCallback = function(message) {
     if (message.body) {
@@ -22,10 +22,20 @@ var successCallback = function(message) {
     }
 };
 var subscriptionCallback = function(frame) {
-    console.log(client);
-    client.subscribe(destination, successCallback)
+    client.subscribe(replyDestination, successCallback)
     console.log("Successfully subscribed");
+        
+    // Send message
+    var requestDestination = "products";
+    var header = {};
+    var body = JSON.stringify({
+        type: "products",
+        action: "list",
+        page: 1,
+        pageSize: 5,
+        sender: "store"
+    });
+    client.send(requestDestination, header, body);
 };
 
 client.connect(login, passcode, subscriptionCallback);
-
