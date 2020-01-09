@@ -12,7 +12,6 @@ services:
       - "5432:5432"
     environment:
       - DEBUG=false
-
       - DB_USER=postgres
       - DB_PASS=postgres
 
