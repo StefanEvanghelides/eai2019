@@ -1,0 +1,27 @@
+@startuml
+
+skinparam componentStyle uml2
+
+ESB -- WarehouseService
+ESB -- AdminService
+ESB -- EUStore
+
+component "ESB" {
+[ControlBus] - [MessageBus]
+[MessageQueue] - [MessageBus]
+[MessageQueue] - [ControlBus]
+}
+
+component "WarehouseService" {
+[WarehouseBackend] - [WarehouseDatabase]
+}
+
+component "AdminService" {
+[AdminBackend] - [AdminUi]
+}
+
+component "EUStore" {
+[StoreUi]
+}
+
+@enduml

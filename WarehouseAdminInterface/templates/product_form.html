@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Product create form</title>
+	</head>
+	<body>
+			<h1>Create a product</h1>
+			<br/>
+			{% if succes %}
+				<h3 style='color: green;'>Product {{product_name}} created</h3>
+			{% endif %}
+
+			{% if error %}
+				<h3 style='color: red;'>{{message}}</h3>
+			{% endif %}
+		<form method='post' target='/products/new'>
+			<input type='text' placeholder='product name' name='product-name'/>
+			<input type='number' placeholder='123' name='product-price'/>
+			<br/>
+			<input type='submit' value='Create Product'/>
+		</form>
+	</body>
+</html>
