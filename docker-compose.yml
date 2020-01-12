@@ -30,12 +30,30 @@ services:
     depends_on:
       - postgres
       - queue
+      - message-bus
+    environment:
+      PYTHONUNBUFFERED: 1
     build: WarehouseAdminInterface
   warehouse-message-handler:
     depends_on:
       - postgres
       - queue
+      - message-bus
     build: WarehouseMessageHandler
+  message-bus:
+    depends_on:
+      - postgres
+      - queue
+    environment:
+      PYTHONUNBUFFERED: 1
+    build: MessageBus
+  store:
+    depends_on:
+      - message-bus
+      - warehouse-message-handler
+    build: Store
+    ports:
+      - "80:80"
   
 volumes:
   postgres-data:
