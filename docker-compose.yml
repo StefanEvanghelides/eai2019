@@ -1,6 +1,12 @@
 version: '3'
 
 services:
+  controlbus:
+    build:
+      context: .
+      dockerfile: ./controlbus/Dockerfile
+    ports:
+      - "8080:8080"
   queue:
     build: ActiveMQ
     ports:
