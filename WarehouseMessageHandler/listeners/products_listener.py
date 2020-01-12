@@ -61,5 +61,5 @@ class ProductsListener(stomp.ConnectionListener):
             "products": result,
         }
 
-        self.queue.send(body=json.dumps(message), destination="reply")
+        self.queue.send(body=json.dumps(message), headers={"destination": "store"}, destination="message-bus-input")
         print("Warehouse sent products to reply channel", message)

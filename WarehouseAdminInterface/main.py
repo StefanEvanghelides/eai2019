@@ -113,9 +113,91 @@ def list_product():
     )
 
 
+
+class MessageListener(stomp.ConnectionListener):
+    def __init__(self, hosts, *args, **kwargs):
+        super(MessageListener, self).__init__(*args, **kwargs)
+        # self.hosts = hosts
+        self.handlers_mapping = {
+            "registration": self.handle_registration_confirmation
+        }
+        # self.queue = stomp.Connection(host_and_ports=hosts)
+        # self.queue.start()
+        # self.queue.connect(
+        #     "reply", "reply", wait=True, headers={"client-id": "warehouse-listener"}
+        # )
+
+    def on_error(self, headers, message):
+        print('received an error "%s"' % message)
+
+    def on_message(self, headers, message):
+        print("RECEIVED MESSAGE!")
+        try:
+            parsed_message = json.loads(message)
+
+            handler = self.handlers_mapping[headers["subject"]]
+            handler(headers, parsed_message)
+
+            print('Warehouse products listener received a message "%s"' % message)
+        except Exception as e:
+            print(
+                "An error occured while receiving a message in the 'Products' listener"
+            )
+            traceback.print_exc()
+
+    def handle_registration_confirmation(self, headers, message):
+        print("sucesfully received registration confirmation from message-bus")
+
+
+def start_message_listener():
+    print("SUBSCRIBE TO MESSAGE_BUS")
+    queue = stomp.Connection(host_and_ports=hosts)
+    queue.set_listener("", MessageListener(hosts))
+    queue.start()
+    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-admin-listener"})
+    queue.subscribe(
+        destination="warehouse-admin-in",
+        id=1,
+        ack="auto",
+        headers={
+            "subscription-type": "MULTICAST",
+            "durable-subscription-name": "someValue",
+        },
+    )
+
+    print("sucesfully subscribed to 'warehouse-admin-in' channel")
+
+
+def register_at_message_bus():
+    print("BEGIN REGISTER AT MESSAGE BUS")
+    queue = stomp.Connection(host_and_ports=hosts)
+    queue.start()
+    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-admin-interface"})
+    
+    headers = {
+        'type': 'request',
+        'subject': 'registration',
+        'sender': 'warehouse-admin-interface',
+        'receiver': 'message-bus'
+    }
+    body = {
+        'service-name': 'warehouse-admin-interface',
+        'input-channel': 'warehouse-admin-in'
+    }
+    queue.send(
+        body=json.dumps(body),
+        **headers,
+        destination="register-new-service"
+    )
+    print("send registration request to message bus")
+
+
 if __name__ == "__main__":
+    time.sleep(2)
     print("hello!")
     create_demo_table(conn)
     seed_db(conn)
+    register_at_message_bus()
+    start_message_listener()
 
     app.run(debug=True, host="0.0.0.0", use_reloader=False)

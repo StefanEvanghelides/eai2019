@@ -1,0 +1,34 @@
+@channel = 'request'
+
+message = {
+	"type": "products",
+	"action": "list",
+	"page": 1,
+	"pageSize": 10,
+	"sender": "store-1"
+}
+
+
+
+@channel = 'store1'
+
+response = {
+	"destination": "store-1",
+	"type": "translated-products",
+	"pageInfo": {
+		"page": 1,
+		"pageSize": 10,
+		"hasNextPage": true,
+		"hasPreviousPage": false,
+		"pageCount": 12
+	},
+	"products: [
+		{
+			"name": "a mnemonic name",
+			"price": 123
+			"vat": 123
+			"currency": "eur"
+		},
+		{...}
+	]
+}
