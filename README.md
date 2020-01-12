@@ -17,3 +17,11 @@ docker-compose up
 ```
 docker-compose up --build
 ```
+
+
+### Services and channels [input-channel] -> service -> [output-channel]:
+ - [message-bus-in] -> message-bus -> [ * ]
+ - [warehouse-message-handler-in] -> warehouse-message-handler -> [message-bus-in]
+ - [warehouse-admin-in] -> warehouse-admin -> [message-bus-in]
+ - [store-nl-in] -> store-nl -> [message-bus-in]
+ - [store-en-in] -> store-en -> [store-en-in]

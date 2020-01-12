@@ -48,6 +48,10 @@ services:
     build: Store
     ports:
       - "80:80"
+  translator:
+    depends_on:
+      - message-bus
+    build: Translator
   
 volumes:
   postgres-data:
