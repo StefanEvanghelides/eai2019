@@ -25,3 +25,7 @@ docker-compose up --build
  - [warehouse-admin-in] -> warehouse-admin -> [message-bus-in]
  - [store-nl-in] -> store-nl -> [message-bus-in]
  - [store-en-in] -> store-en -> [store-en-in]
+
+### Endpoints:
+ - http://localhost:5000/products/new -> allows you to add products to the database
+ - http://localhost/store-nl -> access NL Store (port 80)
