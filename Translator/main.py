@@ -138,6 +138,7 @@ def register_at_message_bus(hosts, queue):
 
 
 if __name__ == "__main__":
+    time.sleep(10)
     hosts = [("queue", 61613)]
     conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
     queue = stomp.Connection(host_and_ports=hosts)
