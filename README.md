@@ -18,6 +18,10 @@ docker-compose up
 docker-compose up --build
 ```
 
+### Endpoints:
+ - http://localhost:5000/products/new -> allows you to add products to the database
+ - http://localhost/store-nl -> access NL Store (port 80)
+
 
 ### Services and channels [input-channel] -> service -> [output-channel]:
  - [message-bus-in] -> message-bus -> [ * ]
@@ -26,6 +30,67 @@ docker-compose up --build
  - [store-nl-in] -> store-nl -> [message-bus-in]
  - [store-en-in] -> store-en -> [store-en-in]
 
-### Endpoints:
- - http://localhost:5000/products/new -> allows you to add products to the database
- - http://localhost/store-nl -> access NL Store (port 80)
+### Message format examples:
+
+#### Registration Request Message:
+```
+headers = {
+    'type': 'request',
+    'subject': 'registration',
+    'sender': 'sending-service-id',
+    'receiver': 'receiving-service-id'
+}
+body = {
+    'service-name': 'sending-service-id,
+    'input-channel': 'sending-service-input-channel'
+}
+```
+
+#### Registration Response Message:
+```
+headers = {
+    'type': 'response',
+    'subject': 'registration',
+    'sender': 'message-bus',
+    'receiver': 'receiving-service-id'
+}
+body = {
+    'success': True
+}
+```
+
+#### Products Request:
+```
+headers = {
+    'type': 'request',
+    'subject': 'products',
+    'sender': 'store-id',
+    'receiver': 'warehouse-message-handler'
+}
+body = {
+    'page': 1,
+    'pageSize': 5,
+    'action': "list",
+}
+```
+
+#### Products Response:
+```
+headers = {
+	'type': 'response',
+	'subject': 'products',
+	'sender': 'warehouse-message-handler',
+	'receiver': store-id
+}
+body = {
+    'pageInfo': {
+        "page": 1,
+        "pageSize": 5,
+        "hasNextPage": True,
+        "hasPreviousPage": False,
+        "pageCount": 2,
+    },
+    'products': []
+}
+```
+
