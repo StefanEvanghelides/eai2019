@@ -4,7 +4,10 @@ skinparam componentStyle uml2
 
 ESB -- WarehouseService
 ESB -- AdminService
-ESB -- EUStore
+ESB -- NlStore
+ESB -- GbStore
+ESB -- PricingTranslater
+ESB -- PricingTranslater2
 
 component "ESB" {
 [ControlBus] - [MessageBus]
@@ -20,8 +23,20 @@ component "AdminService" {
 [AdminBackend] - [AdminUi]
 }
 
-component "EUStore" {
-[StoreUi]
+component "NlStore" {
+[StoreNlUi]
+}
+
+component "GbStore" {
+[StoreGbUi]
+}
+
+component "PricingTranslater" {
+
+}
+
+component "PricingTranslater2" {
+
 }
 
 @enduml
