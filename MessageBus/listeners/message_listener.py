@@ -11,7 +11,8 @@ class MessageListener(stomp.ConnectionListener):
         self.registry = registry
         self.locale_mapping = {
         	'store-nl': 'NL_EUR',
-        	'store-gb': 'GB_GBP'
+        	'store-gb': 'GB_GBP',
+        	'store-us': 'US_USD'
         }
 
         
@@ -20,7 +21,7 @@ class MessageListener(stomp.ConnectionListener):
 
     def on_message(self, headers, message):
         print('messagebus received a message', message, headers)
-        parsed_message = json.loads(message)
+        parsed_message = json.loads(message) if message else ''
 
         if headers['type'] == 'response' and headers['subject'] == 'products' and not 'correlation-id' in headers:
         	# message must be translated first
