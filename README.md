@@ -19,6 +19,12 @@ docker-compose up --build
 ```
 
 
+### Build, run and scale:
+```
+docker-compose up --build --scale translator=3  --scale warehouse-message-handler=3 --scale warehouse-admin=3
+```
+
+
 ### Services and channels [input-channel] -> service -> [output-channel]:
  - [message-bus-in] -> message-bus -> [ * ]
  - [warehouse-message-handler-in] -> warehouse-message-handler -> [message-bus-in]

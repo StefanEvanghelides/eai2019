@@ -49,7 +49,7 @@ def seed_db(conn):
     conn.commit()
 
 
-@app.route("/products/new", methods=["POST", "GET"])
+@app.route("/", methods=["POST", "GET"])
 def new_product():
 
     app.logger.info("Create new product")
@@ -70,7 +70,7 @@ def new_product():
         queue = stomp.Connection(host_and_ports=hosts)
         queue.start()
         queue.connect(
-            "admin", "admin", wait=True, headers={"client-id": "warehouse-admin"}
+            "admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + '-new-product'}
         )
         message = json.dumps(
             {
@@ -154,7 +154,7 @@ def start_message_listener():
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener("", MessageListener(hosts))
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-admin-listener"})
+    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + "-listener"})
     queue.subscribe(
         destination="warehouse-admin-in",
         id=1,
@@ -172,7 +172,7 @@ def register_at_message_bus():
     print("BEGIN REGISTER AT MESSAGE BUS")
     queue = stomp.Connection(host_and_ports=hosts)
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-admin-interface"})
+    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME']})
     
     headers = {
         'type': 'request',

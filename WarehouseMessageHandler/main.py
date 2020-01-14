@@ -8,52 +8,11 @@ import json
 import math
 import traceback
 from listeners import ProductsListener, AdminListener
+from Connection import Connection, Listener
 
 conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
 
-
 time.sleep(3)
-
-
-def start_products_listener(db, hosts):
-    print("starting listener for products channel")
-
-    queue = stomp.Connection(host_and_ports=hosts)
-    queue.set_listener("", ProductsListener(db, hosts))
-    queue.start()
-    queue.connect(
-        "products", "products", wait=True, headers={"client-id": "products-listener"}
-    )
-    queue.subscribe(
-        destination="products",
-        id=1,
-        ack="auto",
-        headers={
-            "subscription-type": "MULTICAST",
-            "durable-subscription-name": "someValue",
-        },
-    )
-
-    print("sucesfully subscribed to 'products' channel")
-
-
-def start_admin_listener(db, hosts):
-    print("starting listener for administrator channel")
-    queue2 = stomp.Connection(host_and_ports=hosts)
-    queue2.set_listener("", AdminListener(db, hosts))
-    queue2.start()
-    queue2.connect("admin", "admin", wait=True, headers={"client-id": "admin-listener"})
-    queue2.subscribe(
-        destination="admin",
-        id=1,
-        ack="auto",
-        headers={
-            "subscription-type": "MULTICAST",
-            "durable-subscription-name": "someValue",
-        },
-    )
-
-    print("sucesfully subscribed to 'admin' channel")
 
 
 class MessageListener(stomp.ConnectionListener):
@@ -139,7 +98,7 @@ def start_message_listener(conn, hosts, send_queue):
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener("", MessageListener(conn, hosts, send_queue))
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-message-listener"})
+    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + "-listener"})
     queue.subscribe(
         destination="warehouse-message-in",
         id=1,
@@ -172,15 +131,54 @@ def register_at_message_bus(hosts, queue):
     print("send registration request to message bus")
 
 
+def list_products(self, headers, message):
+    print("Warehouse received message: ", message)
+    cursor = self.db.cursor()
+    limit = message["pageSize"]
+    offset = max(0, message["page"] - 1) * limit
+    cursor.execute("SELECT * FROM demo LIMIT %d OFFSET %d" % (limit, offset))
+    result = cursor.fetchall()
+    cursor.execute("SELECT COUNT(*) FROM demo")
+    total_count = cursor.fetchall()[0][0]  # returns list of tuples for some reason
+    print(offset, limit, total_count)
+    has_next = offset + limit < total_count
+    has_previous = offset > 0
+
+    headers = {
+    'type': 'response',
+    'subject': 'products',
+    'sender': 'warehouse-message-handler',
+    'receiver': headers['sender']
+    }
+    body = {
+        'pageInfo': {
+            "page": message["page"],
+            "pageSize": message["pageSize"],
+            "hasNextPage": has_next,
+            "hasPreviousPage": has_previous,
+            "pageCount": math.ceil(total_count / limit),
+        },
+        'products': result
+    }
+
+    self.message_bus.send(body=json.dumps(body), headers=headers, destination="message-bus-in")
+    print("Warehouse sent products to reply channel", message)
+
+
+
 if __name__ == "__main__":
-    hosts = [("queue", 61613)]
-    conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
-    # start listeners for input channels
-    queue = stomp.Connection(host_and_ports=hosts)
-    queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "warehouse-message-handler"})
-    register_at_message_bus(hosts, queue)
-    start_message_listener(conn, hosts, queue)
+    request_handlers = {
+        'list': list_products
+    }
+    c = Connection('queue', 'queue', 61613, Listener(request_handlers=request_handlers), 'warehouse-message-handler')
+    # hosts = [("queue", 61613)]
+    # conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
+    # # start listeners for input channels
+    # queue = stomp.Connection(host_and_ports=hosts)
+    # queue.start()
+    # queue.connect("admin", "admin")
+    # register_at_message_bus(hosts, queue)
+    # start_message_listener(conn, hosts, queue)
     # start_products_listener(conn, hosts)
     # start_admin_listener(conn, hosts)
 

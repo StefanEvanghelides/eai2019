@@ -13,7 +13,7 @@ from listeners import ServiceRegistrationListener, MessageListener
 conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
 
 
-time.sleep(3)
+time.sleep(2)
 
 
 def start_products_listener(db, hosts):
@@ -92,8 +92,10 @@ def start_message_listener(hosts, registry):
     )
     return listener
 
+
 if __name__ == "__main__":
     print("starting message bus")
+    time.sleep(5)
     hosts = [("queue", 61613)]
     registry = start_registry_listener(hosts)
     listener = start_message_listener(hosts, registry)

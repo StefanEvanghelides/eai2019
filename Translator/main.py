@@ -70,6 +70,7 @@ class MessageListener(stomp.ConnectionListener):
 
     def on_message(self, headers, message):
         try:
+            print("MESSAGE IN %s" % os.environ['HOSTNAME'])
             parsed_message = json.loads(message)
 
             handler = self.handlers_mapping[headers["subject"]]
@@ -104,7 +105,7 @@ def start_message_listener(conn, hosts, send_queue):
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener("", MessageListener(conn, hosts, send_queue))
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "translator-listener"})
+    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + '-listener'})
     queue.subscribe(
         destination="translator-in",
         id=1,
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
     queue = stomp.Connection(host_and_ports=hosts)
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": "translator-sender"})
+    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME']})
     register_at_message_bus(hosts, queue)
     start_message_listener(conn, hosts, queue)
 
