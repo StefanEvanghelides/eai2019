@@ -9,43 +9,45 @@ import math
 import traceback
 
 
-class EuroTranslator():
+class EuroTranslator:
     def translate(self, message):
         exchange_rate = 1.0
         vat_rate = 1.21
-        products = message['products']
-        message['products'] = []
+        products = message["products"]
+        message["products"] = []
         for product in products:
             product[2] *= vat_rate * exchange_rate
-            product.append('€')
-            product.append('21%')
-            message['products'].append(product)
+            product.append("€")
+            product.append("21%")
+            message["products"].append(product)
         return message
 
-class PoundTranslator():
+
+class PoundTranslator:
     def translate(self, message):
         exchange_rate = 0.855
         vat_rate = 1.2
-        products = message['products']
-        message['products'] = []
+        products = message["products"]
+        message["products"] = []
         for product in products:
             product[2] *= vat_rate * exchange_rate
-            product.append('£')
-            product.append('20%')
-            message['products'].append(product)
+            product.append("£")
+            product.append("20%")
+            message["products"].append(product)
         return message
 
-class DollarTranslator():
+
+class DollarTranslator:
     def translate(self, message):
         exchange_rate = 1.11
         vat_rate = 1.1
-        products = message['products']
-        message['products'] = [] 
+        products = message["products"]
+        message["products"] = []
         for product in products:
             product[2] *= vat_rate * exchange_rate
-            product.append('$')
-            product.append('10%')
-            message['products'].append(product)
+            product.append("$")
+            product.append("10%")
+            message["products"].append(product)
         return message
 
 
@@ -57,12 +59,12 @@ class MessageListener(stomp.ConnectionListener):
         self.queue = queue
         self.handlers_mapping = {
             "products": self.handle_product_translation,
-            'registration': self.handle_registration_confirmation
+            "registration": self.handle_registration_confirmation,
         }
         self.translators = {
-            'NL_EUR': EuroTranslator(),
-            'GB_GBP': PoundTranslator(),
-            'US_USD': DollarTranslator()
+            "NL_EUR": EuroTranslator(),
+            "GB_GBP": PoundTranslator(),
+            "US_USD": DollarTranslator(),
         }
 
     def on_error(self, headers, message):
@@ -70,7 +72,7 @@ class MessageListener(stomp.ConnectionListener):
 
     def on_message(self, headers, message):
         try:
-            print("MESSAGE IN %s" % os.environ['HOSTNAME'])
+            print("MESSAGE IN %s" % os.environ["HOSTNAME"])
             parsed_message = json.loads(message)
 
             handler = self.handlers_mapping[headers["subject"]]
@@ -84,20 +86,16 @@ class MessageListener(stomp.ConnectionListener):
             traceback.print_exc()
 
     def handle_product_translation(self, headers, message):
-        target_locale = message['locale']
+        target_locale = message["locale"]
         translated = self.translators[target_locale].translate(message)
         print("translated message to %s" % target_locale)
 
         self.queue.send(
-            body=json.dumps(translated),
-            headers=headers,
-            destination='message-bus-in'
+            body=json.dumps(translated), headers=headers, destination="message-bus-in"
         )
 
     def handle_registration_confirmation(self, headers, message):
         print("sucesfully received registration confirmation from message-bus")
-
-
 
 
 def start_message_listener(conn, hosts, send_queue):
@@ -105,7 +103,12 @@ def start_message_listener(conn, hosts, send_queue):
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener("", MessageListener(conn, hosts, send_queue))
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + '-listener'})
+    queue.connect(
+        "admin",
+        "admin",
+        wait=True,
+        headers={"client-id": os.environ["HOSTNAME"] + "-listener"},
+    )
     queue.subscribe(
         destination="translator-in",
         id=1,
@@ -118,22 +121,16 @@ def start_message_listener(conn, hosts, send_queue):
 
     print("sucesfully subscribed to 'warehouse-message-in' channel")
 
+
 def register_at_message_bus(hosts, queue):
     headers = {
-        'type': 'request',
-        'subject': 'registration',
-        'sender': 'translator',
-        'receiver': 'message-bus'
+        "type": "request",
+        "subject": "registration",
+        "sender": "translator",
+        "receiver": "message-bus",
     }
-    body = {
-        'service-name': 'translator',
-        'input-channel': 'translator-in'
-    }
-    queue.send(
-        body=json.dumps(body),
-        **headers,
-        destination="register-new-service"
-    )
+    body = {"service-name": "translator", "input-channel": "translator-in"}
+    queue.send(body=json.dumps(body), **headers, destination="register-new-service")
 
     print("send registration request to message bus")
 
@@ -144,7 +141,9 @@ if __name__ == "__main__":
     conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
     queue = stomp.Connection(host_and_ports=hosts)
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME']})
+    queue.connect(
+        "admin", "admin", wait=True, headers={"client-id": os.environ["HOSTNAME"]}
+    )
     register_at_message_bus(hosts, queue)
     start_message_listener(conn, hosts, queue)
 

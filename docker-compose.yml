@@ -31,6 +31,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
     build: WarehouseAdminInterface
+    volumes:
+      - ./Connection:/app/Connection
   warehouse-message-handler:
     depends_on:
       - postgres
@@ -58,6 +60,8 @@ services:
     depends_on:
       - message-bus
     build: Translator
+    volumes:
+      - ./Connection:/app/Connection
   
 volumes:
   postgres-data:

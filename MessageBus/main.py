@@ -7,7 +7,6 @@ from urllib import request, parse, error
 import json
 
 
-
 from listeners import ServiceRegistrationListener, MessageListener
 
 conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
@@ -63,7 +62,12 @@ def start_registry_listener(hosts):
     registry = ServiceRegistrationListener(hosts)
     queue.set_listener("", registry)
     queue.start()
-    queue.connect("register-new-service", "register-new-service", wait=True, headers={"client-id": "message-bus-registry"})
+    queue.connect(
+        "register-new-service",
+        "register-new-service",
+        wait=True,
+        headers={"client-id": "message-bus-registry"},
+    )
     queue.subscribe(
         destination="register-new-service",
         id=1,
@@ -75,12 +79,18 @@ def start_registry_listener(hosts):
     )
     return registry
 
+
 def start_message_listener(hosts, registry):
     queue = stomp.Connection(host_and_ports=hosts)
     listener = MessageListener(hosts, registry)
     queue.set_listener("", listener)
     queue.start()
-    queue.connect("message-bus-in", "message-bus-in", wait=True, headers={"client-id": "message-bus-listener"})
+    queue.connect(
+        "message-bus-in",
+        "message-bus-in",
+        wait=True,
+        headers={"client-id": "message-bus-listener"},
+    )
     queue.subscribe(
         destination="message-bus-in",
         id=1,

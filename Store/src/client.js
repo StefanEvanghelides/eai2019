@@ -26,12 +26,11 @@ function onMessage(message) {
     if(headers.type == 'response' && headers.subject == 'registration' && body.success) {
         var headers = {
             type: 'request',
-            subject: 'products',
+            subject: 'list-products',
             sender: storeId,
             receiver: 'warehouse-message-handler'
         };
         var body = {
-            action: "list",
             page: 1,
             pageSize: 5
         };

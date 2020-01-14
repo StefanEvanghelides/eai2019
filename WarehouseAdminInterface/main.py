@@ -70,7 +70,10 @@ def new_product():
         queue = stomp.Connection(host_and_ports=hosts)
         queue.start()
         queue.connect(
-            "admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + '-new-product'}
+            "admin",
+            "admin",
+            wait=True,
+            headers={"client-id": os.environ["HOSTNAME"] + "-new-product"},
         )
         message = json.dumps(
             {
@@ -113,14 +116,11 @@ def list_product():
     )
 
 
-
 class MessageListener(stomp.ConnectionListener):
     def __init__(self, hosts, *args, **kwargs):
         super(MessageListener, self).__init__(*args, **kwargs)
         # self.hosts = hosts
-        self.handlers_mapping = {
-            "registration": self.handle_registration_confirmation
-        }
+        self.handlers_mapping = {"registration": self.handle_registration_confirmation}
         # self.queue = stomp.Connection(host_and_ports=hosts)
         # self.queue.start()
         # self.queue.connect(
@@ -154,7 +154,12 @@ def start_message_listener():
     queue = stomp.Connection(host_and_ports=hosts)
     queue.set_listener("", MessageListener(hosts))
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME'] + "-listener"})
+    queue.connect(
+        "admin",
+        "admin",
+        wait=True,
+        headers={"client-id": os.environ["HOSTNAME"] + "-listener"},
+    )
     queue.subscribe(
         destination="warehouse-admin-in",
         id=1,
@@ -172,23 +177,21 @@ def register_at_message_bus():
     print("BEGIN REGISTER AT MESSAGE BUS")
     queue = stomp.Connection(host_and_ports=hosts)
     queue.start()
-    queue.connect("admin", "admin", wait=True, headers={"client-id": os.environ['HOSTNAME']})
-    
+    queue.connect(
+        "admin", "admin", wait=True, headers={"client-id": os.environ["HOSTNAME"]}
+    )
+
     headers = {
-        'type': 'request',
-        'subject': 'registration',
-        'sender': 'warehouse-admin-interface',
-        'receiver': 'message-bus'
+        "type": "request",
+        "subject": "registration",
+        "sender": "warehouse-admin-interface",
+        "receiver": "message-bus",
     }
     body = {
-        'service-name': 'warehouse-admin-interface',
-        'input-channel': 'warehouse-admin-in'
+        "service-name": "warehouse-admin-interface",
+        "input-channel": "warehouse-admin-in",
     }
-    queue.send(
-        body=json.dumps(body),
-        **headers,
-        destination="register-new-service"
-    )
+    queue.send(body=json.dumps(body), **headers, destination="register-new-service")
     print("send registration request to message bus")
 
 
