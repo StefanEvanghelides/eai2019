@@ -2,23 +2,32 @@ package com.rug.eai.controlbus.connector;
 
 public class Message {
 
-    private String name;
+    private Header header;
+    private Body body;
 
-    public String getName() {
-        return name;
+    public Header getHeader() {
+        return header;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHeader(Header header) {
+        this.header = header;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-            "name='" + name + '\'' +
-           /* ", description='" + description + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
-            ", price=" + price +*/
-            '}';
+    public Body getBody(){
+        return body;
     }
+
+    public void setBody(Body body) {
+        this.body = body;
+    }
+
+//    @Override
+//    public String toString() {
+//        return "Message{" +
+//            "name='" + header + '\'' +
+//           /* ", description='" + description + '\'' +
+//            ", imageUrl='" + imageUrl + '\'' +
+//            ", price=" + price +*/
+//            '}';
+//    }
 }
