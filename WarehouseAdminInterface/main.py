@@ -49,6 +49,161 @@ def seed_db(conn):
     conn.commit()
 
 
+# @app.route("/", methods=["POST", "GET"])
+# def new_product():
+
+#     app.logger.info("Create new product")
+#     if request.method == "GET":
+#         entries = []
+#         return render_template("product_form.html")
+#     else:
+#         cursor = conn.cursor()
+#         product_name = request.form.get("product-name")
+#         product_price = request.form.get("product-price")
+#         if not product_name or not product_price:
+#             return render_template(
+#                 "product_form.html",
+#                 error=True,
+#                 message="Product name or price is missing",
+#             )
+
+#         queue = stomp.Connection(host_and_ports=hosts)
+#         queue.start()
+#         queue.connect(
+#             "admin",
+#             "admin",
+#             wait=True,
+#             headers={"client-id": os.environ["HOSTNAME"] + "-new-product"},
+#         )
+#         message = json.dumps(
+#             {
+#                 "type": "products",
+#                 "action": "create",
+#                 "content": {"product-name": product_name, "price": product_price},
+#             }
+#         )
+#         queue.send(body=message, destination="admin")
+#         queue.disconnect()
+#         app.logger.info("sent message")
+#         return render_template(
+#             "product_form.html", succes=True, product_name=product_name
+#         )
+
+
+# @app.route("/products/list", methods=["GET"])
+# def list_product():
+#     queue = stomp.Connection(host_and_ports=hosts)
+#     queue.start()
+#     queue.connect(
+#         "products",
+#         "products",
+#         wait=True,
+#         headers={"client-id": "warehouse-product-list"},
+#     )
+#     message = json.dumps(
+#         {
+#             "type": "products",
+#             "action": "list",
+#             "page": 1,
+#             "pageSize": 5,
+#             "sender": "admin-interface",
+#         }
+#     )
+#     queue.send(body=message, destination="products")
+#     queue.disconnect()
+#     return render_template(
+#         "request_list.html", success=True, message="requests product list"
+#     )
+
+
+# class MessageListener(stomp.ConnectionListener):
+#     def __init__(self, hosts, *args, **kwargs):
+#         super(MessageListener, self).__init__(*args, **kwargs)
+#         # self.hosts = hosts
+#         self.handlers_mapping = {"registration": self.handle_registration_confirmation}
+#         # self.queue = stomp.Connection(host_and_ports=hosts)
+#         # self.queue.start()
+#         # self.queue.connect(
+#         #     "reply", "reply", wait=True, headers={"client-id": "warehouse-listener"}
+#         # )
+
+#     def on_error(self, headers, message):
+#         print('received an error "%s"' % message)
+
+#     def on_message(self, headers, message):
+#         print("RECEIVED MESSAGE!")
+#         try:
+#             parsed_message = json.loads(message)
+
+#             handler = self.handlers_mapping[headers["subject"]]
+#             handler(headers, parsed_message)
+
+#             print('Warehouse products listener received a message "%s"' % message)
+#         except Exception as e:
+#             print(
+#                 "An error occured while receiving a message in the 'Products' listener"
+#             )
+#             traceback.print_exc()
+
+#     def handle_registration_confirmation(self, headers, message):
+#         print("sucesfully received registration confirmation from message-bus")
+
+
+# def start_message_listener():
+#     print("SUBSCRIBE TO MESSAGE_BUS")
+#     queue = stomp.Connection(host_and_ports=hosts)
+#     queue.set_listener("", MessageListener(hosts))
+#     queue.start()
+#     queue.connect(
+#         "admin",
+#         "admin",
+#         wait=True,
+#         headers={"client-id": os.environ["HOSTNAME"] + "-listener"},
+#     )
+#     queue.subscribe(
+#         destination="warehouse-admin-in",
+#         id=1,
+#         ack="auto",
+#         headers={
+#             "subscription-type": "MULTICAST",
+#             "durable-subscription-name": "someValue",
+#         },
+#     )
+
+#     print("sucesfully subscribed to 'warehouse-admin-in' channel")
+
+
+# def register_at_message_bus():
+#     print("BEGIN REGISTER AT MESSAGE BUS")
+#     queue = stomp.Connection(host_and_ports=hosts)
+#     queue.start()
+#     queue.connect(
+#         "admin", "admin", wait=True, headers={"client-id": os.environ["HOSTNAME"]}
+#     )
+
+#     headers = {
+#         "type": "request",
+#         "subject": "registration",
+#         "sender": "warehouse-admin-interface",
+#         "receiver": "message-bus",
+#     }
+#     body = {
+#         "service-name": "warehouse-admin-interface",
+#         "input-channel": "warehouse-admin-in",
+#     }
+#     queue.send(body=json.dumps(body), **headers, destination="register-new-service")
+#     print("send registration request to message bus")
+
+
+from Connection import Connection, Listener
+c = Connection(
+    "queue",
+    "queue",
+    61613,
+    Listener(),
+    "warehouse-admin-interface",
+)
+
 @app.route("/", methods=["POST", "GET"])
 def new_product():
 
@@ -67,140 +222,53 @@ def new_product():
                 message="Product name or price is missing",
             )
 
-        queue = stomp.Connection(host_and_ports=hosts)
-        queue.start()
-        queue.connect(
-            "admin",
-            "admin",
-            wait=True,
-            headers={"client-id": os.environ["HOSTNAME"] + "-new-product"},
-        )
-        message = json.dumps(
-            {
-                "type": "products",
-                "action": "create",
-                "content": {"product-name": product_name, "price": product_price},
+        headers = {
+            "type": "request",
+            "subject": "create-product",
+            "sender": "warehouse-admin-interface",
+            "receiver": "warehouse-message-handler"
+        }
+
+        body = {
+            "product": {
+                "price": product_price,
+                "name": product_name
             }
-        )
-        queue.send(body=message, destination="admin")
-        queue.disconnect()
-        app.logger.info("sent message")
+        }
+
+        queue = 'message-bus'
+
+        c.send(queue, headers, body)
+        app.logger.info("Sent new product to warehouse")
         return render_template(
             "product_form.html", succes=True, product_name=product_name
         )
 
-
-@app.route("/products/list", methods=["GET"])
-def list_product():
-    queue = stomp.Connection(host_and_ports=hosts)
-    queue.start()
-    queue.connect(
-        "products",
-        "products",
-        wait=True,
-        headers={"client-id": "warehouse-product-list"},
-    )
-    message = json.dumps(
-        {
-            "type": "products",
-            "action": "list",
-            "page": 1,
-            "pageSize": 5,
-            "sender": "admin-interface",
-        }
-    )
-    queue.send(body=message, destination="products")
-    queue.disconnect()
-    return render_template(
-        "request_list.html", success=True, message="requests product list"
-    )
-
-
-class MessageListener(stomp.ConnectionListener):
-    def __init__(self, hosts, *args, **kwargs):
-        super(MessageListener, self).__init__(*args, **kwargs)
-        # self.hosts = hosts
-        self.handlers_mapping = {"registration": self.handle_registration_confirmation}
-        # self.queue = stomp.Connection(host_and_ports=hosts)
-        # self.queue.start()
-        # self.queue.connect(
-        #     "reply", "reply", wait=True, headers={"client-id": "warehouse-listener"}
-        # )
-
-    def on_error(self, headers, message):
-        print('received an error "%s"' % message)
-
-    def on_message(self, headers, message):
-        print("RECEIVED MESSAGE!")
-        try:
-            parsed_message = json.loads(message)
-
-            handler = self.handlers_mapping[headers["subject"]]
-            handler(headers, parsed_message)
-
-            print('Warehouse products listener received a message "%s"' % message)
-        except Exception as e:
-            print(
-                "An error occured while receiving a message in the 'Products' listener"
-            )
-            traceback.print_exc()
-
-    def handle_registration_confirmation(self, headers, message):
-        print("sucesfully received registration confirmation from message-bus")
-
-
-def start_message_listener():
-    print("SUBSCRIBE TO MESSAGE_BUS")
-    queue = stomp.Connection(host_and_ports=hosts)
-    queue.set_listener("", MessageListener(hosts))
-    queue.start()
-    queue.connect(
-        "admin",
-        "admin",
-        wait=True,
-        headers={"client-id": os.environ["HOSTNAME"] + "-listener"},
-    )
-    queue.subscribe(
-        destination="warehouse-admin-in",
-        id=1,
-        ack="auto",
-        headers={
-            "subscription-type": "MULTICAST",
-            "durable-subscription-name": "someValue",
-        },
-    )
-
-    print("sucesfully subscribed to 'warehouse-admin-in' channel")
-
-
-def register_at_message_bus():
-    print("BEGIN REGISTER AT MESSAGE BUS")
-    queue = stomp.Connection(host_and_ports=hosts)
-    queue.start()
-    queue.connect(
-        "admin", "admin", wait=True, headers={"client-id": os.environ["HOSTNAME"]}
-    )
-
+# TO DO: update nginx.conf to forward remainder of URL so this route can be accessed from browser
+@app.route("/create-db", methods=["GET"])
+def create_db():
+    print("create db", c)
     headers = {
         "type": "request",
-        "subject": "registration",
+        "subject": "create-database",
         "sender": "warehouse-admin-interface",
-        "receiver": "message-bus",
+        "receiver": "warehouse-message-handler"
     }
     body = {
-        "service-name": "warehouse-admin-interface",
-        "input-channel": "warehouse-admin-in",
+        "run-seeds": True
     }
-    queue.send(body=json.dumps(body), **headers, destination="register-new-service")
-    print("send registration request to message bus")
 
 
 if __name__ == "__main__":
-    time.sleep(2)
-    print("hello!")
-    create_demo_table(conn)
-    seed_db(conn)
-    register_at_message_bus()
-    start_message_listener()
-
     app.run(debug=True, host="0.0.0.0", use_reloader=False)
+    
+
+
+
+    # time.sleep(2)
+    # print("hello!")
+    # create_demo_table(conn)
+    # seed_db(conn)
+    # register_at_message_bus()
+    # start_message_listener()
+
