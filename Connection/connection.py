@@ -16,7 +16,7 @@ class Connection:
         self.control_bus = self.connect_to_queue(control_bus, self.port, listener)
         self.listener.set_queue("message-bus", self.message_bus)
         self.listener.set_connection(self)
-        self.listener.set_queue('control-bus', self.control_bus)
+        self.listener.set_queue("control-bus", self.control_bus)
 
         self.register_at_message_bus()
         # self.register_at_control_bus()
@@ -46,9 +46,11 @@ class Connection:
         )
 
     def send(self, queue, headers, body):
-        if queue == 'message-bus':
-            self.message_bus.send(body=json.dumps(body), **headers, destination='message-bus-in')
-        elif queue == 'control-bus':
+        if queue == "message-bus":
+            self.message_bus.send(
+                body=json.dumps(body), **headers, destination="message-bus-in"
+            )
+        elif queue == "control-bus":
             pass
             # self.control_bus.send(body=json.dumps(body), **headers, destination='control-bus-in')
         else:

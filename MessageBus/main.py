@@ -13,6 +13,7 @@ conn = psycopg2.connect(host="postgres", port=5432, user="postgres")
 
 time.sleep(2)
 
+
 def start_registry_listener(hosts):
     print("starting registry listener")
     queue = stomp.Connection(host_and_ports=hosts)

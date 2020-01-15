@@ -36,9 +36,9 @@ class MessageListener(stomp.ConnectionListener):
             self.registry.send("translator", headers, json.dumps(parsed_message))
         else:
             if headers["subject"] == "translate-products":
-            	# redirect translated message to store
-            	headers["subject"] = "list-products"
-            	headers["type"] = "response"
+                # redirect translated message to store
+                headers["subject"] = "list-products"
+                headers["type"] = "response"
             self.registry.send(headers["receiver"], headers, message)
         # router = MessageRouter(destination=message['destination'])
         # router.send(message=message)

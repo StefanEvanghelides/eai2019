@@ -8,7 +8,7 @@ if __name__ == "__main__":
     translators = {
         "NL_EUR": Translator(1.0, 1.21, "€"),
         "GB_GBP": Translator(0.855, 1.2, "£"),
-        "US_USD": Translator(1.11, 1.1, "$")
+        "US_USD": Translator(1.11, 1.1, "$"),
     }
 
     request_handlers = {
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         "control-queue",
         61613,
         Listener(request_handlers=request_handlers),
-        "translator"
+        "translator",
     )
 
     while True:

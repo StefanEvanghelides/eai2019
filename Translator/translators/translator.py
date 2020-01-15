@@ -1,4 +1,3 @@
-
 class Translator:
     def __init__(self, exchange_rate, vat_rate, currency_symbol, *args, **kwargs):
         super(Translator, self).__init__(*args, **kwargs)
@@ -12,7 +11,9 @@ class Translator:
         products = message["products"]
         message["products"] = []
         for product in products:
-            product[2] = round(product[2] * (self.vat_rate * self.exchange_rate) / 100, 2)
+            product[2] = round(
+                product[2] * (self.vat_rate * self.exchange_rate) / 100, 2
+            )
             product.append(self.currency_symbol)
             product.append(self.tax_repr)
             message["products"].append(product)
