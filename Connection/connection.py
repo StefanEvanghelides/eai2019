@@ -45,6 +45,15 @@ class Connection:
             body=json.dumps(body), **headers, destination="register-new-service"
         )
 
+    def send(self, queue, headers, body):
+        if queue == 'message-bus':
+            self.message_bus.send(body=json.dumps(body), **headers, destination='message-bus-in')
+        elif queue == 'control-bus':
+            pass
+            # self.control_bus.send(body=json.dumps(body), **headers, destination='control-bus-in')
+        else:
+            print("No such queue: %s" % queue)
+
     def register_at_control_bus(self):
         pass
 

@@ -19,7 +19,6 @@ class Listener(stomp.ConnectionListener):
         print("RECEIVED MESSAGE!", message, headers)
         print(self.response_handlers, self.request_handlers)
         try:
-            message = json.loads(message)
             if headers["type"] == "request":
                 self.request_handlers[headers["subject"]](message, headers, self.queues)
             else:
