@@ -8,6 +8,8 @@ import math
     "pageSize": 1 <= Integer <= product_count
  }
 """
+
+
 def list_products(db, message, headers, queues):
     message = json.loads(message)
     cursor = db.cursor()
@@ -45,6 +47,7 @@ def list_products(db, message, headers, queues):
         body=json.dumps(body), headers=headers, destination="message-bus-in"
     )
 
+
 """
 message = {
     product: {
@@ -53,30 +56,33 @@ message = {
     }
 }
 """
+
+
 def create_product(db, message, headers, queues):
     cursor = db.cursor()
     message = json.loads(message)
 
-    name = message['product']['name']
-    price = int(message['product']['price'])
+    name = message["product"]["name"]
+    price = int(message["product"]["price"])
 
-    cursor.execute(
-        "INSERT INTO demo (name, price) VALUES ('%s', %d)" % (name, price)
-    )
+    cursor.execute("INSERT INTO demo (name, price) VALUES ('%s', %d)" % (name, price))
 
     db.commit()
     print("Created product {'name': %s, 'price': %d}" % (name, price))
+
 
 """
 message = {
     "dropIfExists": Boolean
 }
 """
+
+
 def create_db(db, message, headers, queues):
     cursor = db.cursor()
     message = json.loads(message)
 
-    if message['dropIfExists']:
+    if message["dropIfExists"]:
         print("Dropping old demo table")
         cursor.execute("DROP TABLE IF EXISTS demo")
 
@@ -92,13 +98,12 @@ def create_db(db, message, headers, queues):
         "receiver": headers["sender"],
     }
 
-    body = {
-        'created': True
-    }
+    body = {"created": True}
 
     queues["message-bus"].send(
         body=json.dumps(body), headers=headers, destination="message-bus-in"
     )
+
 
 """
 message = {
@@ -107,11 +112,13 @@ message = {
     "maxPrice": Integer
 }
 """
+
+
 def seed_db(db, message, headers, queues):
     message = json.loads(message)
     cursor = db.cursor()
 
-    name_seq = set(["test entry %d" % i for i in range(message['numberOfProducts'])])
+    name_seq = set(["test entry %d" % i for i in range(message["numberOfProducts"])])
 
     cursor.execute(
         "SELECT * FROM demo WHERE name IN (%s)"
@@ -122,7 +129,7 @@ def seed_db(db, message, headers, queues):
     to_insert = name_seq - existing
     print("seeding database")
     for name in to_insert:
-        price = random.randint(message['minPrice'], message['maxPrice'])
+        price = random.randint(message["minPrice"], message["maxPrice"])
         print("\t\tinserting entry with name <%s> and price <%d>" % (name, price))
         cursor.execute(
             "INSERT INTO demo (name, price) VALUES ('%s', %d)" % (name, price)
