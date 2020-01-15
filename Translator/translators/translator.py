@@ -5,10 +5,8 @@ class Translator:
         self.exchange_rate = exchange_rate
         self.vat_rate = vat_rate
         self.currency_symbol = currency_symbol
-
         tax_percent = round((float(vat_rate) - 1) * 100)
         self.tax_repr = str(tax_percent) + "%"
-        print("\n\n\n\n\n", self.tax_repr)
 
     def translate(self, message):
         products = message["products"]

@@ -1,12 +1,19 @@
 version: '3'
 
 services:
-  queue:
+  main-queue:
     build: ActiveMQ
     ports:
-      - "61613:61613"
-      - "61614:61614"
+      - "62614:61614"
+  control-queue:
+    build: ActiveMQ
+    ports:
+      - "62615:61614"
       - "8161:8161"
+  backup-queue:
+    build: ActiveMQ
+    ports:
+      - "62616:61614"
   # queue2:
   #   build: ActiveMQ
   # queue3:
@@ -26,7 +33,7 @@ services:
     #   - "5000:5000"
     depends_on:
       - postgres
-      - queue
+      - main-queue
       - message-bus
     environment:
       PYTHONUNBUFFERED: 1
@@ -36,7 +43,7 @@ services:
   warehouse-message-handler:
     depends_on:
       - postgres
-      - queue
+      - main-queue
       - message-bus
     build: WarehouseMessageHandler
     volumes:
@@ -44,7 +51,7 @@ services:
   message-bus:
     depends_on:
       - postgres
-      - queue
+      - main-queue
     environment:
       PYTHONUNBUFFERED: 1
     build: MessageBus

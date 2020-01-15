@@ -63,7 +63,7 @@ def start_message_listener(hosts, registry):
 if __name__ == "__main__":
     print("starting message bus")
     time.sleep(5)
-    hosts = [("queue", 61613)]
+    hosts = [("main-queue", 61613)]
     registry = start_registry_listener(hosts)
     listener = start_message_listener(hosts, registry)
 

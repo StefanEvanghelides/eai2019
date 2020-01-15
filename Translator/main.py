@@ -16,8 +16,8 @@ if __name__ == "__main__":
     }
 
     c = Connection(
-        "queue",
-        "queue",
+        "main-queue",
+        "control-queue",
         61613,
         Listener(request_handlers=request_handlers),
         "translator"

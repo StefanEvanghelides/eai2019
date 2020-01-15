@@ -8,8 +8,10 @@ if (typeof TextEncoder !== 'function') {
     Object.assign(global, { TextDecoder: TextDecoder });
 }
 
-var url = "ws://localhost:61614";
-var client = Stomp.client(url);
+var mainQueueUrl = "ws://localhost:62614";
+var controlQueueUrl = "ws://localhost:62615";
+var backupQueueUrl = "ws://localhost:62616";
+var client = Stomp.client(mainQueueUrl);
 
 var login = "admin";
 var passcode = "admin";

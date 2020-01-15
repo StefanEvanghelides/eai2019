@@ -14,8 +14,8 @@ if __name__ == "__main__":
         "seed-database": partial(seed_db, conn),
     }
     c = Connection(
-        "queue",
-        "queue",
+        "main-queue",
+        "control-queue",
         61613,
         Listener(request_handlers=request_handlers),
         "warehouse-message-handler",
