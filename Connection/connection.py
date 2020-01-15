@@ -19,7 +19,7 @@ class Connection:
         self.listener.set_queue("control-bus", self.control_bus)
 
         self.register_at_message_bus()
-        # self.register_at_control_bus()
+        self.register_at_control_bus()
 
     def register_at_message_bus(self):
         self.message_bus.subscribe(
@@ -58,7 +58,7 @@ class Connection:
             print("No such queue: %s" % queue)
 
     def register_at_control_bus(self):
-        self.message_bus.subscribe(
+        self.control_bus.subscribe(
             destination=self.service_name + "-in",
             id=1,
             ack="auto",
