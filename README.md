@@ -18,6 +18,10 @@ docker-compose up
 docker-compose up --build
 ```
 
+### Endpoints:
+ - http://localhost:5000/products/new -> allows you to add products to the database
+ - http://localhost/store-nl -> access NL Store (port 80)
+
 
 ### Build, run and scale:
 ```
@@ -95,3 +99,4 @@ body = {
     'products': []
 }
 ```
+
