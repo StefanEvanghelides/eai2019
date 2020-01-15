@@ -51,13 +51,22 @@ class Connection:
                 body=json.dumps(body), **headers, destination="message-bus-in"
             )
         elif queue == "control-bus":
-            pass
-            # self.control_bus.send(body=json.dumps(body), **headers, destination='control-bus-in')
+            self.control_bus.send(
+                body=json.dumps(body), **headers, destination="control-bus-in"
+            )
         else:
             print("No such queue: %s" % queue)
 
     def register_at_control_bus(self):
-        pass
+        self.message_bus.subscribe(
+            destination=self.service_name + "-in",
+            id=1,
+            ack="auto",
+            headers={
+                "subscription-type": "MULTICAST",
+                "durable-subscription-name": "someValue",
+            },
+        )
 
     def set_message_bus(self, host, port):
         if self.message_bus:

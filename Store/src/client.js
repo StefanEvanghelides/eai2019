@@ -75,6 +75,14 @@ function onConnect(frame) {
     )
 }
 
+function nextPage() {
+    console.log("next page!")
+}
+
+function previousPage() {
+    console.log("previousPage")
+}
+
 document.getElementById('test-paragraph').innerHTML = `This store uses tax calculations from the ${process.env.LOCALE} locale`
 
 function registerAtMessageBus(client) {
@@ -84,3 +92,6 @@ function registerAtMessageBus(client) {
 console.log(process.env, process.env.LOCALE)
 
 registerAtMessageBus(client)
+
+document.getElementById('next-page').addEventListener("click", nextPage); 
+document.getElementById('previous-page').addEventListener("click", previousPage); 
