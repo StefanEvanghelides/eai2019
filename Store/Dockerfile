@@ -20,6 +20,13 @@ RUN cp dist/bundle.js store-GB/bundle.js
 RUN cp index.html store-GB/index.html
 RUN sed -i 's|src="bundle"|src="store-gb/bundle"/|g' store-GB/index.html
 
+RUN mkdir store-US
+RUN mv .env-us .env
+RUN npx webpack 
+RUN cp dist/bundle.js store-US/bundle.js
+RUN cp index.html store-US/index.html
+RUN sed -i 's|src="bundle"|src="store-us/bundle"/|g' store-US/index.html
+
 FROM nginx
 RUN mkdir /app
 COPY nginx.conf /etc/nginx/nginx.conf

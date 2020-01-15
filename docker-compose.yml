@@ -9,13 +9,19 @@ services:
       - "8080:8080"
     depends_on:
       - queue
-  queue:
+  main-queue:
     build: ActiveMQ
     ports:
-      - "61613:61613"
-      - "61614:61614"
-      - "61616:61616"
+      - "62614:61614"
+  control-queue:
+    build: ActiveMQ
+    ports:
+      - "62615:61614"
       - "8161:8161"
+  backup-queue:
+    build: ActiveMQ
+    ports:
+      - "62616:61614"
   postgres:
     build: Postgres
     ports: 
@@ -24,29 +30,32 @@ services:
       - DEBUG=false
       - DB_USER=postgres
       - DB_PASS=postgres
-
     volumes:
       - postgres-data:/var/lib/postgresql/data
   warehouse-admin:
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "5000:5000"
     depends_on:
       - postgres
-      - queue
+      - main-queue
       - message-bus
     environment:
       PYTHONUNBUFFERED: 1
     build: WarehouseAdminInterface
+    volumes:
+      - ./Connection:/app/Connection
   warehouse-message-handler:
     depends_on:
       - postgres
-      - queue
+      - main-queue
       - message-bus
     build: WarehouseMessageHandler
+    volumes:
+      - ./Connection:/app/Connection
   message-bus:
     depends_on:
       - postgres
-      - queue
+      - main-queue
     environment:
       PYTHONUNBUFFERED: 1
     build: MessageBus
@@ -54,9 +63,16 @@ services:
     depends_on:
       - message-bus
       - warehouse-message-handler
+      - warehouse-admin
     build: Store
     ports:
       - "80:80"
-  
+  translator:
+    depends_on:
+      - message-bus
+    build: Translator
+    volumes:
+      - ./Connection:/app/Connection
+
 volumes:
   postgres-data:

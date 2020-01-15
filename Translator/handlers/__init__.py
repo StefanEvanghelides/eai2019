@@ -1,0 +1,1 @@
+from .request_handlers import handle_product_translation

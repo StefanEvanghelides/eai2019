@@ -8,43 +8,18 @@ if (typeof TextEncoder !== 'function') {
     Object.assign(global, { TextDecoder: TextDecoder });
 }
 
-var url = "ws://localhost:61614";
-var client = Stomp.client(url);
+var mainQueueUrl = "ws://localhost:62614";
+var controlQueueUrl = "ws://localhost:62615";
+var backupQueueUrl = "ws://localhost:62616";
+var client = Stomp.client(mainQueueUrl);
 
-// Connect
 var login = "admin";
 var passcode = "admin";
-//var header = {id: "store"};
 
 var storeId = process.env.STORE_ID
 var inputChannel = storeId + '-in'
 var registryChannel = 'register-new-service'
 var messageBusChannel = 'message-bus-in'
-
-// var successCallback = function(message) {
-//     if (message.body) {
-//         console.log("Received message: " + message.body);
-//     } else {
-//         console.log("Received empty message");
-//     }
-// };
-
-// var subscriptionCallback = function(frame) {
-//     client.subscribe(replyDestination, successCallback)
-//     console.log("Successfully subscribed");
-        
-//     // Send message
-//     var requestDestination = "products";
-//     var header = {};
-//     var body = JSON.stringify({
-//         type: "products",
-//         action: "list",
-//         page: 1,
-//         pageSize: 5,
-//         sender: "store"
-//     });
-//     client.send(requestDestination, header, body);
-// };
 
 function onMessage(message) {
     console.log("received a message!", message.body, message.headers)
@@ -53,12 +28,11 @@ function onMessage(message) {
     if(headers.type == 'response' && headers.subject == 'registration' && body.success) {
         var headers = {
             type: 'request',
-            subject: 'products',
+            subject: 'list-products',
             sender: storeId,
             receiver: 'warehouse-message-handler'
         };
         var body = {
-            action: "list",
             page: 1,
             pageSize: 5
         };
@@ -67,6 +41,15 @@ function onMessage(message) {
             headers,
             JSON.stringify(body)
         )
+    } else if (headers.type == 'response' && headers.subject == 'list-products') {
+        const products = body.products
+        for(let product of products) {
+            product_list = document.getElementById('product-list')
+            current_html = product_list.innerHTML
+            console.log(product)
+            new_html = current_html + `<div>${product[1]} - ${product[3]} ${product[2]} - tax rate: ${product[4]}</div>`
+            product_list.innerHTML = new_html
+        }
     }
 }
 
