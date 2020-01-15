@@ -1,11 +1,5 @@
 import psycopg2
 import time
-import os
-import sys
-import stomp
-from urllib import request, parse, error
-import json
-import math
 
 from Connection import Connection, Listener
 from functools import partial
