@@ -17,7 +17,7 @@ if __name__ == "__main__":
         "list-products": partial(list_products, conn),
         "create-product": partial(create_product, conn),
         "create-database": partial(create_db, conn),
-        "seed-database": partial(seed_db),
+        "seed-database": partial(seed_db, conn),
     }
     c = Connection(
         "queue",
