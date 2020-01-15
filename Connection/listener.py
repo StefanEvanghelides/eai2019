@@ -41,7 +41,7 @@ class Listener(stomp.ConnectionListener):
         #         'heartbeat': datetime.now()
         #     }
         #     headers = {
-        #         'type': 'other',
+        #         'type': 'datagram',
         #         'subject': 'heartbeat',
         #         'sender': self.conn.service_name,
         #         'receiver': 'message-bus'

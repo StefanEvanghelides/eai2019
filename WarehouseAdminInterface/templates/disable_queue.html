@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Create Database</title>
+		<title>Product create form</title>
 	</head>
 	<body>	
 		<h2>Navigation</h2>
@@ -10,6 +10,7 @@
 				<li><a href="http://localhost/admin-interface">Create Product</a></li>
 				<li><a href="http://localhost/admin-interface/create-database">Create Database</a></li>
 				<li><a href="http://localhost/admin-interface/seed-db">Seed Database</a></li>
+				<!-- <li><a href="http://localhost/admin-interface/seed-db">Seed Database</a></li> -->
 			</ul>
 		</span>
 		<span>
@@ -20,16 +21,17 @@
 				<li><a href="http://localhost/store-us">Store US</a></li>
 			</ul>
 		</span>
-
-		{% if succes %}
-			<h3 style='color: green;'>Create request was sent to warehouse</h3>
-		{% endif %}
-		<h1>Create the database</h1>
+		<h1>Create a product</h1>
 		<br/>
-		<form method='post' target='/create-db'>
-			<label for='drop-if-exists'><input type='checkbox' name='drop-if-exists'/> Drop the existing database</label>
-			<br/>
-			<input type='submit' value='Create database'/>
+		{% if succes %}
+			<h3 style='color: green;'>Product {{product_name}} created</h3>
+		{% endif %}
+
+		{% if error %}
+			<h3 style='color: red;'>{{message}}</h3>
+		{% endif %}
+		<form method='post' target='/disable-main-queue'>
+			<input type='submit' value='Disable Main Queue'/>
 		</form>
 	</body>
 </html>

@@ -101,9 +101,26 @@ def seed_db():
         return render_template("seed_database.html", succes=True)
 
 
-@app.route("/test-switch-queue", methods=["GET", "POST"])
-def test_switch_queue():
-    pass
+@app.route("/disable-main-queue", methods=["GET", "POST"])
+def disable_main_queue():
+    app.logger.info("Disable main queue")
+    if request.method == "GET":
+        entries = []
+        return render_template("seed_database.html")
+    else:
+        headers = {
+            "type": "datagram",
+            "subject": "disable-main-queue",
+            "sender": "warehouse-admin-interface",
+            "receiver": "control-bus",
+        }
+
+        body = {}
+
+        queue = "control-bus"
+
+        c.send(queue, headers, body)
+        return render_template("disable_queue.html", succes=True)
 
 
 if __name__ == "__main__":

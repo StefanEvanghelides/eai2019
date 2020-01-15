@@ -14,10 +14,6 @@ services:
     build: ActiveMQ
     ports:
       - "62616:61614"
-  # queue2:
-  #   build: ActiveMQ
-  # queue3:
-  #   build: ActiveMQ
   postgres:
     build: Postgres
     ports: 
@@ -29,8 +25,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
   warehouse-admin:
-    # ports:
-    #   - "5000:5000"
     depends_on:
       - postgres
       - main-queue
