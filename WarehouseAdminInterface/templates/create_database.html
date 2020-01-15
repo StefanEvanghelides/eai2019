@@ -3,29 +3,29 @@
 		<title>Create Database</title>
 	</head>
 	<body>	
-			<h2>Navigation</h2>
-			<span>
-				<div>Admin Interface</div>
-				<ul>
-					<li><a href="http://localhost/admin-interface">Create Product</a></li>
-					<li><a href="http://localhost/admin-interface/create-database">Create Database</a></li>
-					<li><a href="http://localhost/admin-interface/seed-db">Seed Database</a></li>
-				</ul>
-			</span>
-			<span>
-				<div>Stores</div>
-				<ul>
-					<li><a href="http://localhost/store-nl">Store NL</a></li>
-					<li><a href="http://localhost/store-gb">Store UK</a></li>
-					<li><a href="http://localhost/store-us">Store US</a></li>
-				</ul>
-			</span>
+		<h2>Navigation</h2>
+		<span>
+			<div>Admin Interface</div>
+			<ul>
+				<li><a href="http://localhost/admin-interface">Create Product</a></li>
+				<li><a href="http://localhost/admin-interface/create-database">Create Database</a></li>
+				<li><a href="http://localhost/admin-interface/seed-db">Seed Database</a></li>
+			</ul>
+		</span>
+		<span>
+			<div>Stores</div>
+			<ul>
+				<li><a href="http://localhost/store-nl">Store NL</a></li>
+				<li><a href="http://localhost/store-gb">Store UK</a></li>
+				<li><a href="http://localhost/store-us">Store US</a></li>
+			</ul>
+		</span>
 
-			{% if succes %}
-				<h3 style='color: green;'>Create request was sent to warehouse</h3>
-			{% endif %}
-			<h1>Create the database</h1>
-			<br/>
+		{% if succes %}
+			<h3 style='color: green;'>Create request was sent to warehouse</h3>
+		{% endif %}
+		<h1>Create the database</h1>
+		<br/>
 		<form method='post' target='/'>
 			<label for='drop-if-exists'><input type='checkbox' name='drop-if-exists'/> Drop the existing database</label>
 			<br/>
