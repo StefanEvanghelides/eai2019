@@ -24,16 +24,21 @@ class MessageListener(stomp.ConnectionListener):
 
         if (
             headers["type"] == "response"
-            and headers["subject"] == "products"
+            and headers["subject"] == "list-products"
             and not "correlation-id" in headers
         ):
             # message must be translated first
             headers["correlation-id"] = "asdf123"
+            headers["type"] = "request"
             parsed_message["locale"] = self.locale_mapping[headers["receiver"]]
 
+            headers["subject"] = "translate-products"
             self.registry.send("translator", headers, json.dumps(parsed_message))
         else:
-            print("ELSE CLAUSE!", message, headers)
+            if headers["subject"] == "translate-products":
+            	# redirect translated message to store
+            	headers["subject"] = "list-products"
+            	headers["type"] = "response"
             self.registry.send(headers["receiver"], headers, message)
         # router = MessageRouter(destination=message['destination'])
         # router.send(message=message)

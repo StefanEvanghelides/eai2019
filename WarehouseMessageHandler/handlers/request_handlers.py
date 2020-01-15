@@ -1,5 +1,6 @@
 import json
 import math
+import random
 
 
 """
@@ -27,7 +28,7 @@ def list_products(db, message, headers, queues):
 
     headers = {
         "type": "response",
-        "subject": "products",
+        "subject": "list-products",
         "sender": "warehouse-message-handler",
         "receiver": headers["sender"],
     }

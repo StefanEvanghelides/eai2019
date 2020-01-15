@@ -39,13 +39,13 @@ function onMessage(message) {
             headers,
             JSON.stringify(body)
         )
-    } else if (headers.type == 'response' && headers.subject == 'products') {
+    } else if (headers.type == 'response' && headers.subject == 'list-products') {
         const products = body.products
         for(let product of products) {
             product_list = document.getElementById('product-list')
             current_html = product_list.innerHTML
             console.log(product)
-            new_html = current_html + `<div>${product[1]} - ${product[3]} ${product[2]/100} - tax rate: ${product[4]}</div>`
+            new_html = current_html + `<div>${product[1]} - ${product[3]} ${product[2]} - tax rate: ${product[4]}</div>`
             product_list.innerHTML = new_html
         }
     }
