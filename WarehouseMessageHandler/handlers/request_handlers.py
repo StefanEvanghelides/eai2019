@@ -83,9 +83,10 @@ def create_db(db, message, headers, queues):
     cursor = db.cursor()
     message = json.loads(message)
 
-    if message["dropIfExists"]:
+    if message["dropIfExists"] == "on":
         print("Dropping old demo table")
         cursor.execute("DROP TABLE IF EXISTS demo")
+        db.commit()
 
     print("Creating demo table")
     cursor.execute(
@@ -98,12 +99,12 @@ def create_db(db, message, headers, queues):
         "sender": "warehouse-message-handler",
         "receiver": headers["sender"],
     }
+    # TO DO: actually send confirmation
+    # body = {"created": True}
 
-    body = {"created": True}
-
-    queues["message-bus"].send(
-        body=json.dumps(body), headers=headers, destination="message-bus-in"
-    )
+    # queues["message-bus"].send(
+    #     body=json.dumps(body), headers=headers, destination="message-bus-in"
+    # )
 
 
 """
@@ -119,8 +120,8 @@ def seed_db(db, message, headers, queues):
     message = json.loads(message)
     cursor = db.cursor()
 
-    name_seq = set(["test entry %d" % i for i in range(message["numberOfProducts"])])
-
+    name_seq = set(["test entry %d" % i for i in range(int(message["numberOfProducts"]))])
+    print("\n\n\n", name_seq, "\n\n\n")
     cursor.execute(
         "SELECT * FROM demo WHERE name IN (%s)"
         % ", ".join(map(lambda item: "'%s'" % item, name_seq))
@@ -130,7 +131,7 @@ def seed_db(db, message, headers, queues):
     to_insert = name_seq - existing
     print("seeding database")
     for name in to_insert:
-        price = random.randint(message["minPrice"], message["maxPrice"])
+        price = random.randint(int(message["minPrice"]), int(message["maxPrice"]))
         print("\t\tinserting entry with name <%s> and price <%d>" % (name, price))
         cursor.execute(
             "INSERT INTO demo (name, price) VALUES ('%s', %d)" % (name, price)
