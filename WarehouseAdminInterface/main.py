@@ -244,19 +244,65 @@ def new_product():
             "product_form.html", succes=True, product_name=product_name
         )
 
-# TO DO: update nginx.conf to forward remainder of URL so this route can be accessed from browser
-@app.route("/create-db", methods=["GET"])
+@app.route("/create-database", methods=["GET", "POST"])
 def create_db():
-    print("create db", c)
-    headers = {
-        "type": "request",
-        "subject": "create-database",
-        "sender": "warehouse-admin-interface",
-        "receiver": "warehouse-message-handler"
-    }
-    body = {
-        "run-seeds": True
-    }
+    app.logger.info("Create database")
+    if request.method == "GET":
+        entries = []
+        return render_template("create_database.html")
+    else:
+        cursor = conn.cursor()
+        drop_if_exists = request.form.get("drop-if-exists")
+
+        headers = {
+            "type": "request",
+            "subject": "create-database",
+            "sender": "warehouse-admin-interface",
+            "receiver": "warehouse-message-handler"
+        }
+
+        body = {
+            "dropIfExists": drop_if_exists
+        }
+
+        queue = 'message-bus'
+
+        c.send(queue, headers, body)
+        return render_template(
+            "create_database.html", succes=True
+        )
+
+@app.route("/seed-db", methods=["GET", "POST"])
+def seed_db():
+    app.logger.info("Seed database")
+    if request.method == "GET":
+        entries = []
+        return render_template("seed_database.html")
+    else:
+        cursor = conn.cursor()
+        number_of_products = request.form.get("number-of-products")
+        min_price = request.form.get("min-price")
+        max_price = request.form.get("max-price")
+
+        headers = {
+            "type": "request",
+            "subject": "seed-database",
+            "sender": "warehouse-admin-interface",
+            "receiver": "warehouse-message-handler"
+        }
+
+        body = {
+            "numberOfProducts": number_of_products,
+            "minPrice": min_price,
+            "maxPrice": max_price
+        }
+
+        queue = 'message-bus'
+
+        c.send(queue, headers, body)
+        return render_template(
+            "seed_database.html", succes=True
+        )
 
 
 if __name__ == "__main__":
