@@ -120,7 +120,9 @@ def seed_db(db, message, headers, queues):
     message = json.loads(message)
     cursor = db.cursor()
 
-    name_seq = set(["Demo Product %d" % i for i in range(int(message["numberOfProducts"]))])
+    name_seq = set(
+        ["Demo Product %d" % i for i in range(int(message["numberOfProducts"]))]
+    )
     print("\n\n\n", name_seq, "\n\n\n")
     cursor.execute(
         "SELECT * FROM demo WHERE name IN (%s)"

@@ -24,9 +24,21 @@ class MessageListener(stomp.ConnectionListener):
     def on_message(self, headers, message):
         print("messagebus received a message", message, headers)
         print("queue", self.queue)
-        self.queue.send(destination='warehouse-admin-interface-in', **{'type': "datagram", 'subject': 'set-message-queue'}, body=json.dumps({'host': 'backup-queue'}))
-        self.queue.send(destination='translator-in', **{'type': "datagram", 'subject': 'set-message-queue'}, body=json.dumps({'host': 'backup-queue'}))
-        self.queue.send(destination='warehouse-message-handler-in', **{'type': "datagram", 'subject': 'set-message-queue'}, body=json.dumps({'host': 'backup-queue'}))
+        self.queue.send(
+            destination="warehouse-admin-interface-in",
+            **{"type": "datagram", "subject": "set-message-queue"},
+            body=json.dumps({"host": "backup-queue"})
+        )
+        self.queue.send(
+            destination="translator-in",
+            **{"type": "datagram", "subject": "set-message-queue"},
+            body=json.dumps({"host": "backup-queue"})
+        )
+        self.queue.send(
+            destination="warehouse-message-handler-in",
+            **{"type": "datagram", "subject": "set-message-queue"},
+            body=json.dumps({"host": "backup-queue"})
+        )
         # parsed_message = json.loads(message) if message else ""
 
         # if (

@@ -43,10 +43,7 @@ def start_message_listener(hosts):
     queue.set_listener("", listener)
     queue.start()
     queue.connect(
-        "admin",
-        "admin",
-        wait=True,
-        headers={"client-id": "control-bus-listener"},
+        "admin", "admin", wait=True, headers={"client-id": "control-bus-listener"}
     )
     queue.subscribe(
         destination="control-bus-in",
@@ -64,7 +61,7 @@ if __name__ == "__main__":
     print("starting message bus")
     time.sleep(5)
     hosts = [("control-queue", 61613)]
-    #registry = start_registry_listener(hosts)
+    # registry = start_registry_listener(hosts)
     listener = start_message_listener(hosts)
     print("started message listener")
     while True:

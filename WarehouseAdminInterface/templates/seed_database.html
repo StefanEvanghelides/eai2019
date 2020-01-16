@@ -10,6 +10,7 @@
 				<li><a href="http://localhost/admin-interface">Create Product</a></li>
 				<li><a href="http://localhost/admin-interface/create-database">Create Database</a></li>
 				<li><a href="http://localhost/admin-interface/seed-db">Seed Database</a></li>
+				<li><a href="http://localhost/admin-interface/disable-main-queue">Seed Database</a></li>
 			</ul>
 		</span>
 		<span>
@@ -24,7 +25,7 @@
 		{% if succes %}
 			<h3 style='color: green;'>Seed request was sent to warehouse</h3>
 		{% endif %}
-		<h1>Create a product</h1>
+		<h1>Seed the database</h1>
 		<br/>
 		<form method='post' target='/seed-db'>
 			<input type='number' placeholder='number of products' name='number-of-products'/>

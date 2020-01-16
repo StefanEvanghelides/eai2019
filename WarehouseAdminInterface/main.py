@@ -120,9 +120,9 @@ def disable_main_queue():
                 "subject": "channel-out-of-order",
                 "type": "datagram",
                 "sender": "warehouse-admin-interface",
-                "receiver": "control_bus"
+                "receiver": "control_bus",
             },
-            "body": None
+            "body": None,
         }
 
         queue = "control-bus"

@@ -3,7 +3,7 @@ from Crypto.Cipher import AES
 
 
 class MessageEncryption:
-    secret_key = b'1234567890123456'
+    secret_key = b"1234567890123456"
     cipher = AES.new(secret_key, AES.MODE_ECB)
 
     @staticmethod
@@ -16,8 +16,8 @@ class MessageEncryption:
 
 if __name__ == "__main__":
 
-    secret_key = b'1234567890123456'
-    msg_text = b'test some plain text here'.rjust(32)
+    secret_key = b"1234567890123456"
+    msg_text = b"test some plain text here".rjust(32)
 
     cipher = AES.new(secret_key, AES.MODE_ECB)
     encoded = base64.b64encode(cipher.encrypt(msg_text))

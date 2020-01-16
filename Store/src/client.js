@@ -21,33 +21,45 @@ var inputChannel = storeId + '-in'
 var registryChannel = 'register-new-service'
 var messageBusChannel = 'message-bus-in'
 
+var page = 1
+var pageSize = 10
+var maxPage = 1
+
+
+
+function requestPage() {
+    var headers = {
+        type: 'request',
+        subject: 'list-products',
+        sender: storeId,
+        receiver: 'warehouse-message-handler'
+    };
+    var body = {
+        page: page,
+        pageSize: pageSize
+    };
+    client.send(
+        messageBusChannel,
+        headers,
+        JSON.stringify(body)
+    )
+}
+
 function onMessage(message) {
     console.log("received a message!", message.body, message.headers)
     var headers = message.headers
     var body = JSON.parse(message.body)
     if(headers.type == 'response' && headers.subject == 'registration' && body.success) {
-        var headers = {
-            type: 'request',
-            subject: 'list-products',
-            sender: storeId,
-            receiver: 'warehouse-message-handler'
-        };
-        var body = {
-            page: 1,
-            pageSize: 10
-        };
-        client.send(
-            messageBusChannel,
-            headers,
-            JSON.stringify(body)
-        )
+        requestPage()
     } else if (headers.type == 'response' && headers.subject == 'list-products') {
         const products = body.products
+        maxPage = body.pageInfo.pageCount
+        product_list = document.getElementById('product-list')
+        product_list.innerHTML = ""
         for(let product of products) {
-            product_list = document.getElementById('product-list')
             current_html = product_list.innerHTML
             console.log(product)
-            new_html = current_html + `<div>${product[1]} - ${product[3]} ${product[2]} - tax rate: ${product[4]}</div>`
+            new_html = current_html + `<div style="font-size: 30px">${product[1]} - ${product[3]} ${product[2]} - tax rate: ${product[4]}</div>`
             product_list.innerHTML = new_html
         }
     }
@@ -75,12 +87,27 @@ function onConnect(frame) {
     )
 }
 
+
 function nextPage() {
     console.log("next page!")
+    page += 1;
+    if(page >= maxPage) {
+        page = maxPage
+        document.getElementById('next-page').disabled=true
+    }
+    requestPage()
+    document.getElementById('previous-page').disabled=false
 }
 
 function previousPage() {
     console.log("previousPage")
+    page -= 1;
+    if(page <= 1) {
+        page = 1
+        document.getElementById('previous-page').disabled=true
+    }
+    requestPage()
+    document.getElementById('next-page').disabled=false
 }
 
 document.getElementById('test-paragraph').innerHTML = `This store uses tax calculations from the ${process.env.LOCALE} locale`
