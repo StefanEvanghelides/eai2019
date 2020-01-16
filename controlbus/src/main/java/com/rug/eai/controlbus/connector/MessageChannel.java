@@ -18,6 +18,7 @@ public class MessageChannel {
     public void receiveMessage(final String json) throws JMSException {
         System.out.println("Inside MessageChannel!");
         System.out.println("The message is " +  json);
+        /*
         Message message = new Gson().fromJson(json, Message.class);
         System.out.println("Message header is " + message.getHeader());
         System.out.println("Message header sender is " + message.getHeader().getSender());
@@ -26,23 +27,24 @@ public class MessageChannel {
         System.out.println("Message header subject is " + message.getHeader().getSubject());
         System.out.println("Message body is " + message.getBody());
         String subject = message.getHeader().getSubject();
-        switch (subject) {
-            case REGISTRY:
-                System.out.println("Inside registry");
-                // TODO: add registration here
-                break;
-            case HEARTBEAT:
-                System.out.println("Inside Heartbeat");
-                // TODO: add hearbeat here
-                break;
-            case CHANNEL_OUT_OF_ORDER:
-                System.out.println("Inside COOO");
-                // TODO: add rerouting here
-                triggerRerouting();
-                break;
-            default:
-                System.out.println("SUBJECT NOT SUPPORTED");
-        }
+        */
+        triggerRerouting();
+//        switch (subject) {
+//            case REGISTRY:
+//                System.out.println("Inside registry");
+//                // TODO: add registration here
+//                break;
+//            case HEARTBEAT:
+//                System.out.println("Inside Heartbeat");
+//                // TODO: add hearbeat here
+//                break;
+//            case CHANNEL_OUT_OF_ORDER:
+//                System.out.println("Inside COOO");
+//                // TODO: add rerouting here
+//                break;
+//            default:
+//                System.out.println("SUBJECT NOT SUPPORTED");
+//        }
       
 
 
@@ -102,16 +104,19 @@ public class MessageChannel {
 
     @SendTo("warehouse-message-handler-in")
     private String rerouteTranslatorIn(String message) {
+        System.out.println("Send rerouting message to warehouse message handler");
         return message;
     }
 
     @SendTo("warehouse-admin-interface-in")
     private String rerouteWarehouseAdminInterface(String message) {
+        System.out.println("Send rerouting message to admin interface");
         return message;
     }
 
     @SendTo("translator-in")
     private String rerouteWarehouseMessageHandler(String message) {
+        System.out.println("Send rerouting message to translator");
         return message;
     }
 }
