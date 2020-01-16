@@ -19,7 +19,7 @@ class Listener(stomp.ConnectionListener):
         print("RECEIVED MESSAGE!", message, headers)
         print(self.response_handlers, self.request_handlers)
         try:
-            if headers["type"] == "request":
+            if headers["type"] == "request" or headers["type"] == "datagram":
                 self.request_handlers[headers["subject"]](message, headers, self.queues)
             else:
                 self.response_handlers[headers["subject"]](
@@ -30,8 +30,9 @@ class Listener(stomp.ConnectionListener):
             traceback.print_exc()
             print("No such %s handler: %s" % (headers["type"], headers["subject"]))
 
-    def handle_set_message_bus(self, message, headers):
-        self.conn.set_message_bus(message["host"], message["port"])
+    def handle_set_message_bus(self, message, headers, queues):
+        message = json.loads(message)
+        self.conn.set_message_bus(message["host"], 61613)
 
     def start_heart_beat(self, message, headers, queues):
         # TODO: uncomment this & send to control_bus instead

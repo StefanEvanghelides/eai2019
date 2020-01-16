@@ -34,7 +34,7 @@ function onMessage(message) {
         };
         var body = {
             page: 1,
-            pageSize: 5
+            pageSize: 10
         };
         client.send(
             messageBusChannel,

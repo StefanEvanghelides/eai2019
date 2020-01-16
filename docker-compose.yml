@@ -1,18 +1,23 @@
 version: '3'
 
 services:
-  controlbus:
-    build:
-      context: .
-      dockerfile: ./controlbus/Dockerfile
-    ports:
-      - "8080:8080"
+  # controlbus:
+  #   build:
+  #     context: .
+  #     dockerfile: ./controlbus/Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - control-queue
+  control-bus:
+    build: ControlBus
     depends_on:
       - control-queue
   main-queue:
     build: ActiveMQ
     ports:
       - "62614:61614"
+      - "8163:8161"
   control-queue:
     build: ActiveMQ
     ports:
@@ -22,6 +27,7 @@ services:
     build: ActiveMQ
     ports:
       - "62616:61614"
+      - "8162:8161"
   postgres:
     build: Postgres
     ports: 

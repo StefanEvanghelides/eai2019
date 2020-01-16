@@ -21,7 +21,7 @@ class Connection:
         self.register_at_message_bus()
         self.register_at_control_bus()
 
-    def register_at_message_bus(self):
+    def subscribe(self):
         self.message_bus.subscribe(
             destination=self.service_name + "-in",
             id=1,
@@ -31,6 +31,9 @@ class Connection:
                 "durable-subscription-name": "someValue",
             },
         )
+
+    def register_at_message_bus(self):
+        self.subscribe()
         headers = {
             "type": "request",
             "subject": "registration",
@@ -62,7 +65,6 @@ class Connection:
     def register_at_control_bus(self):
         print("REGISTERING AT CONTROL BUS", self.service_name)
         self.control_bus.subscribe(
-
             destination=self.service_name + "-in",
             id=1,
             ack="auto",
@@ -78,6 +80,7 @@ class Connection:
             pass
         self.message_bus = self.connect_to_queue(host, port, self.listener)
         self.listener.set_queue("message-bus", self.message_bus)
+        self.subscribe()
 
     def connect_to_queue(self, host, port, listener):
         conn = stomp.Connection(host_and_ports=[(host, port)])

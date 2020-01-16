@@ -62,7 +62,7 @@ message = {
 def create_product(db, message, headers, queues):
     cursor = db.cursor()
     message = json.loads(message)
-
+    print(message)
     name = message["product"]["name"]
     price = int(message["product"]["price"])
 
@@ -120,7 +120,7 @@ def seed_db(db, message, headers, queues):
     message = json.loads(message)
     cursor = db.cursor()
 
-    name_seq = set(["test entry %d" % i for i in range(int(message["numberOfProducts"]))])
+    name_seq = set(["Demo Product %d" % i for i in range(int(message["numberOfProducts"]))])
     print("\n\n\n", name_seq, "\n\n\n")
     cursor.execute(
         "SELECT * FROM demo WHERE name IN (%s)"
