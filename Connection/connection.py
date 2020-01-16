@@ -47,6 +47,8 @@ class Connection:
 
     def send(self, queue, headers, body):
         if queue == "message-bus":
+            if body == {}:
+                body = ""
             self.message_bus.send(
                 body=json.dumps(body), **headers, destination="message-bus-in"
             )
@@ -59,7 +61,8 @@ class Connection:
 
     def register_at_control_bus(self):
         print("REGISTERING AT CONTROL BUS", self.service_name)
-        self.message_bus.subscribe(
+        self.control_bus.subscribe(
+
             destination=self.service_name + "-in",
             id=1,
             ack="auto",

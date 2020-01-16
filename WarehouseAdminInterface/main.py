@@ -106,20 +106,32 @@ def disable_main_queue():
     app.logger.info("Disable main queue")
     if request.method == "GET":
         entries = []
-        return render_template("seed_database.html")
+        return render_template("disable_queue.html")
     else:
-        headers = {
-            "type": "datagram",
-            "subject": "disable-main-queue",
-            "sender": "warehouse-admin-interface",
-            "receiver": "control-bus",
-        }
+        # headers = {
+        #     "type": "datagram",
+        #     "subject": "disable-main-queue",
+        #     "sender": "warehouse-admin-interface",
+        #     "receiver": "control-bus",
+        # }
 
-        body = {}
+        body = {
+            "header": {
+                "subject": "channel-out-of-order",
+                "type": "datagram",
+                "sender": "warehouse-admin-interface",
+                "receiver": "control_bus"
+            },
+            "body": None
+        }
 
         queue = "control-bus"
 
-        c.send(queue, headers, body)
+        print()
+
+        print("\n\n\n\n", json.dumps(body), "\n\n\n\n")
+
+        c.send(queue, {}, {})
         return render_template("disable_queue.html", succes=True)
 
 

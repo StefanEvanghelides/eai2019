@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  controlbus:
+    build:
+      context: .
+      dockerfile: ./controlbus/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - control-queue
   main-queue:
     build: ActiveMQ
     ports:
@@ -63,6 +71,6 @@ services:
     build: Translator
     volumes:
       - ./Connection:/app/Connection
-  
+
 volumes:
   postgres-data:
